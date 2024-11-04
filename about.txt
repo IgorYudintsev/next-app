@@ -1,0 +1,62 @@
+yarn add sass @zeit/next-sassyarn add axios
+yarn add axios
+https://rickandmortyapi.com/
+Роутинг: 
+1.страницы кладем в папку pages-> папка Characters->index.tsx
+2.создаем NavBar -обычные ссылки
+3.В файле _app вставляем:
+export default function App({ Component, pageProps }: AppProps) {
+  return(
+      <>
+        <NavBar/>
+        <Component {...pageProps} />
+      </>
+
+  )
+}
+3. Или идем сложнее создаем LayOut: 
+import {NextPage} from "next";
+import {PropsWithChildren, ReactElement} from "react";
+import NavBar from "@/components/navBar/NavBar";
+
+export const LayOut: NextPage<PropsWithChildren> = (props) => {
+    const {children} = props
+    return (
+        <div>
+            <NavBar/>
+            {children}
+        </div>
+    );
+};
+
+export const getLayout=(page:ReactElement)=>{
+    return <LayOut>{page}</LayOut>
+} 
+
+4.В файле _app вставляем:
+import type { ReactElement, ReactNode } from 'react'
+import type { NextPage } from 'next'
+import type { AppProps } from 'next/app'
+
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+    getLayout?: (page: ReactElement) => ReactNode
+}
+
+type AppPropsWithLayout = AppProps & {
+    Component: NextPageWithLayout
+}
+
+export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+    // Use the layout defined at the page level, if available
+    const getLayout = Component.getLayout ?? ((page) => page)
+
+    return getLayout(<Component {...pageProps} />)
+}
+
+5.Затем в каждой компоненте где нужно:
+CharactersPage.getLayout=getLayout
+export default CharactersPage
+----------------------------
+-Динамичный роутинг [id]
+- .env
+- 404
